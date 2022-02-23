@@ -3,6 +3,11 @@ import numpy as np
 import random
 from IPython import display
 from matplotlib import pyplot as plt
+import d2lzh_pytorch as d2l
+import torchvision
+import torchvision.transforms as transforms
+
+
 def use_svg_display():
     # 用矢量图显示
     display.set_matplotlib_formats('svg')
@@ -37,6 +42,25 @@ def sgd(params, lr, batch_size):  # 本函数已保存在d2lzh_pytorch包中方�
     for param in params:
         param.data -= lr * param.grad / batch_size # 注意这里更改param时用的param.data
 
+# 本函数已保存在d2lzh包中方便以后使用
+def get_fashion_mnist_labels(labels):
+    text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
+                   'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
+    return [text_labels[int(i)] for i in labels]
+
+# 下面定义一个可以在一行里画出多张图像和对应标签的函数。
+# 本函数已保存在d2lzh包中方便以后使用
+def show_fashion_mnist(images, labels):
+    d2l.use_svg_display()
+    # 这里的_表示我们忽略（不使用）的变量
+    _, figs = plt.subplots(1, len(images), figsize=(12, 12))
+    for f, img, lbl in zip(figs, images, labels):
+        f.imshow(img.view((28, 28)).numpy())
+        f.set_title(lbl)
+        f.axes.get_xaxis().set_visible(False)
+        f.axes.get_yaxis().set_visible(False)
+    plt.show()
+
 if __name__ == "__main__":
     num_inputs = 2
     num_examples = 1000
@@ -49,3 +73,20 @@ if __name__ == "__main__":
     for X, y in data_iter(10, features, labels):
         print(X, y)
         break
+
+def load_data_fashion_mnist(batch_size, num_workers):
+    mnist_train = torchvision.datasets.FashionMNIST(root='~/data/FasionMNIST', train=True, download=True,transform=transforms.ToTensor())
+    mnist_test = torchvision.datasets.FashionMNIST(root='~/data/FasionMNIST', train=False, download=True,transform=transforms.ToTensor())
+
+    train_iter = torch.utils.data.DataLoader(mnist_train, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    test_iter = torch.utils.data.DataLoader(mnist_test, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    return train_iter, test_iter
+
+我们将对x的形状转换的这个功能自定义一个FlattenLayer并记录在d2lzh_pytorch中方便后面使用。
+
+# 本函数已保存在d2lzh_pytorch包中方便以后使用
+class FlattenLayer(nn.Module):
+    def __init__(self):
+        super(FlattenLayer, self).__init__()
+    def forward(self, x):
+        return x.view(x.shape[0], -1)
