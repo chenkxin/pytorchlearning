@@ -49,3 +49,6 @@ jspm_packages
 *.ind 
 21116460002.pdf
 __latexindent_temp.tex
+
+.idea
+__pycache__
